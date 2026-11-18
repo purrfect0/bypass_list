@@ -1,83 +1,119 @@
-# bypass-lists — Списки для умного обхода блокировок (Smart RU)
+<div align="center">
 
-Готовые списки маршрутизации, автообновляемые конфиги и одноразовые `.bat`-скрипты для **Happ**, **v2RayTun** и **AmneziaVPN**.
+# 🛡️ bypass_list
 
-## Как это работает
+Автообновляемые списки и однокликовые скрипты умной маршрутизации (**Split Tunneling**) для **Happ**, **v2RayTun** и **AmneziaVPN**:<br>
+**Gemini, зарубежные ИИ и заблокированные сайты — через VPN; Dota 2, Steam, банки и весь остальной интернет — напрямую без потери скорости и пинга.**
 
-* **Через VPN (`Proxy`):**
-  * **ИИ и разработка:** Gemini / AI Studio / NotebookLM (`geosite:google-deepmind`), весь Google, ChatGPT, Claude, Copilot, Perplexity, Cursor, Midjourney (`geosite:category-ai-!cn`), Figma, NVIDIA, GitHub, JetBrains, Canva, Notion, Adobe, Autodesk.
-  * **Заблокированные в РФ и соцсети:** YouTube, Discord (включая голосовые UDP-серверы `66.22.192.0/18`), Telegram, Instagram, X (Twitter), TikTok, Spotify, Netflix, Patreon и реестр РКН + `re:filter` / `antifilter`.
-* **Напрямую мимо VPN (`Direct`):**
-  * **Dota 2 и Steam:** свежий пул игровых релеев Valve (`ISteamApps/GetSDRConfig/v1/?appid=570` + суперсети `AS32590`) и `geosite:steam` — пинг остаётся родным даже в режиме `TUN`.
-  * **Весь остальной интернет:** российские сайты, банки, Госуслуги, торренты и любой обычный трафик идут напрямую без просадки скорости.
+[![Update Bypass Lists](https://github.com/purrfect0/bypass_list/actions/workflows/update-lists.yml/badge.svg)](https://github.com/purrfect0/bypass_list/actions/workflows/update-lists.yml)
+![Clients](https://img.shields.io/badge/Clients-Happ%20%7C%20v2RayTun%20%7C%20AmneziaVPN-6E56CF?style=flat-square)
+![Platforms](https://img.shields.io/badge/Platforms-Windows%20%7C%20Android%20%7C%20iOS-0078D4?style=flat-square)
+![Auto Update](https://img.shields.io/badge/Auto--Update-Every%2012h-2EA043?style=flat-square)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square)](LICENSE)
+
+</div>
 
 ---
 
-## Быстрый старт (готовые файлы в `dist/`)
+## ⚡ Установка на Windows в 1 команду
 
-Если ничего не хочется запускать — просто бери уже собранные файлы из папки [`dist/`](dist/):
+Для самого ленивого друга — **без скачивания файлов и предупреждений SmartScreen**. Открой PowerShell (`Win + X` → **Терминал / PowerShell**), скопируй нужную строчку кнопкой справа и нажми `Enter`:
 
-| Клиент | Устройство | Готовый файл / ссылка |
+* **Happ (ПК):**
+  ```powershell
+  Start-Process (irm https://raw.githubusercontent.com/purrfect0/bypass_list/main/dist/happ/pc_android_deeplink.txt)
+  ```
+* **v2RayTun (ПК):**
+  ```powershell
+  Start-Process (irm https://raw.githubusercontent.com/purrfect0/bypass_list/main/dist/v2raytun/deeplink.txt)
+  ```
+
+> **Важно:** после того как клиент откроется и подхватит профиль, нажми в нём кнопку переподключения (**Выкл / Вкл**).
+
+---
+
+## 📦 Готовые ссылки, списки и `.bat`-файлы
+
+| Клиент | Устройство / примечание | Готовые ссылки и файлы |
 |---|---|---|
-| **Happ** | ПК (Windows) и Android | [`dist/happ/pc_android_deeplink.txt`](dist/happ/pc_android_deeplink.txt) / [`pc_android.json`](dist/happ/pc_android.json) |
-| **Happ** | iPhone (iOS, облегчённый) | [`dist/happ/iphone_lite_deeplink.txt`](dist/happ/iphone_lite_deeplink.txt) / [`iphone_lite.json`](dist/happ/iphone_lite.json) |
-| **v2RayTun** | ПК / Android / iPhone (диплинк) | [`dist/v2raytun/deeplink.txt`](dist/v2raytun/deeplink.txt) |
-| **v2RayTun** | ПК / Android / iPhone (полный JSON) | [`dist/v2raytun/routing_full.json`](dist/v2raytun/routing_full.json) (компактный: [`routing_compact.json`](dist/v2raytun/routing_compact.json)) |
-| **AmneziaVPN** | ПК / Android / iPhone (JSON) | [`dist/amnezia/amnezia_blocked_ips.json`](dist/amnezia/amnezia_blocked_ips.json) (текст: [`amnezia_blocked_ips.txt`](dist/amnezia/amnezia_blocked_ips.txt)) |
+| **Happ** | ПК (Windows) и Android | [🔗 Диплинк (.txt)](https://raw.githubusercontent.com/purrfect0/bypass_list/main/dist/happ/pc_android_deeplink.txt) · [📄 JSON](https://raw.githubusercontent.com/purrfect0/bypass_list/main/dist/happ/pc_android.json) · [📥 setup_happ.bat](https://raw.githubusercontent.com/purrfect0/bypass_list/main/scripts/setup_happ.bat) |
+| **Happ Lite** | iPhone / iOS (лёгкие базы 1.4 МБ под лимит 50 МБ RAM) | [🔗 Диплинк (.txt)](https://raw.githubusercontent.com/purrfect0/bypass_list/main/dist/happ/iphone_lite_deeplink.txt) · [📄 JSON](https://raw.githubusercontent.com/purrfect0/bypass_list/main/dist/happ/iphone_lite.json) |
+| **v2RayTun** | ПК / Android / iPhone | [🔗 Диплинк (.txt)](https://raw.githubusercontent.com/purrfect0/bypass_list/main/dist/v2raytun/deeplink.txt) · [📄 Полный JSON](https://raw.githubusercontent.com/purrfect0/bypass_list/main/dist/v2raytun/routing_full.json) · [📥 setup_v2raytun.bat](https://raw.githubusercontent.com/purrfect0/bypass_list/main/scripts/setup_v2raytun.bat) |
+| **AmneziaVPN** | ПК / Android / iPhone | [📄 amnezia_blocked_ips.json](https://raw.githubusercontent.com/purrfect0/bypass_list/main/dist/amnezia/amnezia_blocked_ips.json) · [📝 Список CIDR (.txt)](https://raw.githubusercontent.com/purrfect0/bypass_list/main/dist/amnezia/amnezia_blocked_ips.txt) · [📥 make_amnezia_iplist.bat](https://raw.githubusercontent.com/purrfect0/bypass_list/main/scripts/make_amnezia_iplist.bat) |
+
+> 💡 **Подсказка:** чтобы сохранить `.bat` или `.json` в браузере из открывшейся вкладки — нажми `Ctrl + S` и убедись, что в конце имени файла не дописалось `.txt`. Любой `.bat` из [`scripts/`](scripts/) полностью автономен — его можно переслать другу в Telegram одним файлом.
 
 ---
 
-## Однокликовые батники для ПК (можно кидать другу в Telegram по одному)
+## 🧭 Как распределяется трафик
 
-Все `.bat`-файлы в [`scripts/`](scripts/) **полностью автономны** — внутри них зашит собственный PowerShell-код, так что другу можно переслать даже один конкретный `.bat` без остального репозитория:
-
-* [`scripts/setup_happ.bat`](scripts/setup_happ.bat) — собирает свежие релеи Dota 2, копирует ссылку в буфер, запускает **Happ** с авто-активацией профиля (`happ://routing/onadd/...`) и сохраняет рядом ссылки для ПК/Android и iPhone.
-* [`scripts/setup_v2raytun.bat`](scripts/setup_v2raytun.bat) — собирает пул Dota 2 + `re:filter community`, импортирует правила в **v2RayTun** через `v2rayTun://import_route/...` и копирует полный JSON в буфер обмена.
-* [`scripts/make_amnezia_iplist.bat`](scripts/make_amnezia_iplist.bat) — собирает оптимизированный `amnezia_blocked_ips.json` (~1 160+ подсетей без Valve `AS32590`) для быстрого импорта в **AmneziaVPN** без зависаний.
-* [`update_all.bat`](update_all.bat) — запускает [`scripts/build-all.ps1`](scripts/build-all.ps1) и одним кликом пересобирает все файлы в `dist/` с учётом твоих правок в `custom/`.
+| Категория | Примеры сервисов | Маршрут |
+|---|---|---|
+| 🤖 **ИИ и разработка** | Gemini, AI Studio, NotebookLM, ChatGPT, Claude, Cursor, Perplexity, Copilot, Midjourney, Figma, NVIDIA, JetBrains, GitHub, Canva, Notion, Adobe | `🛡️ Через VPN (Proxy)` |
+| 🌐 **Заблокированные ресурсы и соцсети** | YouTube, Discord (сайт + голосовой UDP `66.22.192.0/18`), Instagram, Facebook, X/Twitter, TikTok, Spotify, Netflix, Patreon, Rutracker + базы РКН (`runetfreedom`, `re:filter`, `antifilter`) | `🛡️ Через VPN (Proxy)` |
+| 🎮 **Dota 2 и Steam** | Игровые релеи Valve SDR (автосбор из API Steam `GetSDRConfig` + `AS32590`) и `geosite:steam` | `⚡ Напрямую (Direct)` |
+| 🏦 **Весь остальной интернет** | Российские сайты, банки, Госуслуги, маркетплейсы, торренты и обычные игры | `⚡ Напрямую (Direct)` |
 
 ---
 
-## Инструкции по клиентам
+## 📱 Подробные инструкции по настройке
 
-### ПК (Windows)
-* **Happ:** запусти [`scripts/setup_happ.bat`](scripts/setup_happ.bat) и в самом Happ нажми **Выкл/Вкл (Reconnect)**.
-  * Для браузера (Gemini, YouTube) и Dota 2 достаточно режима **System Proxy**.
-  * Для десктопного **Discord с голосом** переключи Happ в режим **`TUN`** (от имени Администратора) — Дота всё равно пойдёт напрямую через правила `DirectIp`.
-* **v2RayTun:** запусти [`scripts/setup_v2raytun.bat`](scripts/setup_v2raytun.bat) и подтверди импорт (или в v2RayTun: **Настройки → Маршрутизация → `⋮` → Импорт из буфера**).
+<details open>
+<summary><b>💻 Настройка на ПК (Windows) — Happ, v2RayTun, AmneziaVPN</b></summary>
+
+* **Happ:** запусти команду из раздела выше или [`scripts/setup_happ.bat`](scripts/setup_happ.bat), затем в самом Happ нажми **Выкл / Вкл (Reconnect)** и подожди 5–10 секунд скачивания гео-баз.
+  * Для браузера (Gemini, YouTube) и Dota 2 достаточно режима **System Proxy** (Дота его игнорирует и всегда идёт напрямую).
+  * Если нужен десктопный **Discord с голосом** — переключи Happ в режим **`TUN`** (запуск от имени Администратора). Благодаря подсетям Valve (`AS32590`) и `GlobalProxy: false` Дота даже в `TUN` продолжит идти напрямую с минимальным пингом.
+  * *Примечание:* если твоя подписка выдана провайдером в закрытом режиме (*Restricted Mode*), Happ может блокировать смену профиля маршрутизации — с обычными `vless://` / `trojan://` / `ss://` ключами всё работает без ограничений.
+* **v2RayTun:** запусти команду из раздела выше или [`scripts/setup_v2raytun.bat`](scripts/setup_v2raytun.bat) и подтверди импорт. Либо скопируй содержимое [`dist/v2raytun/routing_full.json`](dist/v2raytun/routing_full.json) и вставь через **Настройки ⚙️ → Маршрутизация → `⋮` → Импорт из буфера обмена**.
 * **AmneziaVPN:**
-  1. Отключи VPN в AmneziaVPN.
+  1. Отключи активное VPN-соединение в AmneziaVPN.
   2. Открой **Настройки ⚙️ → Соединение → Раздельное туннелирование сайтов**.
-  3. Включи тумблер и выбери **«Только адреса из списка должны открываться через VPN»**.
-  4. Нажми **Импорт → Заменить список сайтов** и выбери [`dist/amnezia/amnezia_blocked_ips.json`](dist/amnezia/amnezia_blocked_ips.json) (или сгенерированный через [`scripts/make_amnezia_iplist.bat`](scripts/make_amnezia_iplist.bat)).
-  5. Убедись, что в **Настройки ⚙️ → DNS** стоят `1.1.1.1` и `8.8.8.8`, и подключись.
+  3. Включи тумблер и выбери режим **«Только адреса из списка должны открываться через VPN»**.
+  4. Нажми **Импорт → Заменить список сайтов** и выбери [`amnezia_blocked_ips.json`](https://raw.githubusercontent.com/purrfect0/bypass_list/main/dist/amnezia/amnezia_blocked_ips.json) (или сгенерируй свежий через [`make_amnezia_iplist.bat`](scripts/make_amnezia_iplist.bat)).
+  5. Проверь, что в **Настройки ⚙️ → DNS** указаны `1.1.1.1` и `8.8.8.8`, и подключись.
 
-### Телефоны (Android и iPhone)
-Удобнее всего переслать нужное содержимое из `dist/` себе или другу в **Избранное Telegram**:
+</details>
 
-* **Happ (Android):** скопируй строку `happ://routing/onadd/...` из [`dist/happ/pc_android_deeplink.txt`](dist/happ/pc_android_deeplink.txt) → в Happ нажми **`+` → Вставить из буфера обмена** → переподключи VPN.
-* **Happ (iPhone):** у iOS жёсткий системный лимит **50 МБ ОЗУ** на сетевой туннель, поэтому используй именно облегчённую ссылку из [`dist/happ/iphone_lite_deeplink.txt`](dist/happ/iphone_lite_deeplink.txt) (она тянет лёгкие базы `~1.4 МБ` с JSDelivr вместо полной 88 МБ базы).
-* **v2RayTun (Android и iPhone):** скопируй содержимое [`dist/v2raytun/deeplink.txt`](dist/v2raytun/deeplink.txt) (или JSON из [`dist/v2raytun/routing_full.json`](dist/v2raytun/routing_full.json)) → в v2RayTun перейди в **Настройки ⚙️ → Маршрутизация → `⋮` → Импорт из буфера обмена** → проверь, что правила включены, и переподключи VPN.
-* **AmneziaVPN (Android и iPhone):** сохрани [`dist/amnezia/amnezia_blocked_ips.json`](dist/amnezia/amnezia_blocked_ips.json) на телефон *(на iPhone следи, чтобы не добавилось `.txt` в конце)* → при выключенном VPN зайди в **Настройки ⚙️ → Раздельное туннелирование сайтов** → режим **«Только адреса из списка должны открываться через VPN»** → **Импорт**.
-* **Совет для Android (банки и такси):** если какое-то банковское приложение ругается просто на сам значок VPN в шторке Android, в **Happ / v2RayTun / AmneziaVPN** открой **Раздельное туннелирование приложений (Per-App Proxy)** и добавь это приложение в исключения (**Обход / Bypass**).
+<details>
+<summary><b>📱 Настройка на Android и iPhone (iOS)</b></summary>
 
----
+Проще всего переслать нужную ссылку или файл в **Избранное Telegram**:
 
-## Свои домены и IP
+* **Happ (Android):** скопируй строку `happ://routing/onadd/...` из [pc_android_deeplink.txt](https://raw.githubusercontent.com/purrfect0/bypass_list/main/dist/happ/pc_android_deeplink.txt) → открой **Happ** → **`+` → Вставить из буфера обмена** → переподключи VPN.
+* **Happ (iPhone / iOS):** у iOS жёсткий лимит **50 МБ оперативной памяти** на сетевой туннель (тяжёлая десктопная база вышибет VPN при запуске). Поэтому для iPhone копируй ссылку строго из [iphone_lite_deeplink.txt](https://raw.githubusercontent.com/purrfect0/bypass_list/main/dist/happ/iphone_lite_deeplink.txt) (`~1.4 МБ` базы через JSDelivr) → в **Happ** нажми **`+` → Вставить из буфера обмена** → переподключи VPN.
+* **v2RayTun (Android и iPhone):** скопируй содержимое [deeplink.txt](https://raw.githubusercontent.com/purrfect0/bypass_list/main/dist/v2raytun/deeplink.txt) или [routing_full.json](https://raw.githubusercontent.com/purrfect0/bypass_list/main/dist/v2raytun/routing_full.json) → открой **v2RayTun → Настройки ⚙️ → Маршрутизация → `⋮` → Импорт из буфера обмена** → убедись, что тумблеры правил включены (`ON`), и переподключи VPN.
+* **AmneziaVPN (Android и iPhone):** сохрани [amnezia_blocked_ips.json](https://raw.githubusercontent.com/purrfect0/bypass_list/main/dist/amnezia/amnezia_blocked_ips.json) на телефон *(на iPhone следи, чтобы в конце не добавилось `.txt`)* → при выключенном VPN зайди в **Настройки ⚙️ → Соединение → Раздельное туннелирование сайтов** → режим **«Только адреса из списка должны открываться через VPN»** → **Импорт**.
+* **Лайфхак для Android (банки и такси):** некоторые приложения на Android проверяют сам факт включённого значка `VPN` в шторке. В **Happ**, **v2RayTun** и **AmneziaVPN** открой **Раздельное туннелирование приложений (Per-App Proxy)** и добавь нужный банк в исключения (**Обход / Bypass**).
 
-1. Допиши нужные домены или теги в [`custom/extra-proxy-domains.txt`](custom/extra-proxy-domains.txt) (по одному на строку, можно просто `example.com` или `geosite:...`).
+</details>
+
+<details>
+<summary><b>⚙️ Добавление своих доменов и IP + структура репозитория</b></summary>
+
+1. Допиши нужные домены или теги в [`custom/extra-proxy-domains.txt`](custom/extra-proxy-domains.txt) (по одному на строку, например `example.com` или `geosite:openai`).
 2. Допиши нужные подсети в [`custom/extra-proxy-ips.txt`](custom/extra-proxy-ips.txt) (например `1.2.3.0/24`).
-3. Запусти [`update_all.bat`](update_all.bat) — пересоберутся все файлы в `dist/`.
-   *(Также батники из `scripts/` автоматически подхватывают `custom/`, если лежат в структуре репозитория).*
+3. Запусти [`update_all.bat`](update_all.bat) — скрипт [`scripts/build-all.ps1`](scripts/build-all.ps1) пересоберёт все файлы в [`dist/`](dist/).
+   * На GitHub также настроен [`.github/workflows/update-lists.yml`](.github/workflows/update-lists.yml), который автоматически обновляет `dist/` каждые **12 часов** (и по кнопке **Run workflow**).
 
-## Автообновление на GitHub
-
-Встроенный workflow [`.github/workflows/update-lists.yml`](.github/workflows/update-lists.yml) раз в 12 часов (и по кнопке **Run workflow**) сам обновляет `dist/` на GitHub.
-
-Чтобы залить этот репозиторий на свой GitHub (создай пустой репо на GitHub, например `bypass-lists`, без README/gitignore):
-
-```bash
-git remote add origin https://github.com/<ТВОЙ_НИК>/bypass-lists.git
-git branch -M main
-git push -u origin main
+```text
+bypass_list/
+├── .github/workflows/update-lists.yml   # Автообновление dist/ каждые 12 часов
+├── custom/
+│   ├── extra-proxy-domains.txt          # Твои дополнительные домены для VPN
+│   └── extra-proxy-ips.txt              # Твои дополнительные IP/CIDR для VPN
+├── dist/
+│   ├── amnezia/                         # Готовый JSON и список CIDR для AmneziaVPN
+│   ├── happ/                            # Диплинки и JSON для Happ (PC/Android + iPhone Lite)
+│   └── v2raytun/                        # Диплинк, компактный и полный JSON для v2RayTun
+├── scripts/
+│   ├── build-all.ps1                    # Кроссплатформенный сборщик (Windows/Linux)
+│   ├── make_amnezia_iplist.bat          # Автономный батник для AmneziaVPN
+│   ├── setup_happ.bat                   # Автономный батник для Happ
+│   └── setup_v2raytun.bat               # Автономный батник для v2RayTun
+├── LICENSE                              # Лицензия MIT
+├── README.md
+└── update_all.bat                       # Пересобрать весь dist/ локально в 1 клик
 ```
+
+</details>
