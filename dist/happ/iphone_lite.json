@@ -1,0 +1,54 @@
+{
+    "Name":  "Gemini + Smart RU (iPhone)",
+    "GlobalProxy":  "false",
+    "UseChunkFiles":  "false",
+    "RemoteDNSType":  "DoH",
+    "RemoteDNSDomain":  "https://cloudflare-dns.com/dns-query",
+    "RemoteDNSIP":  "1.1.1.1",
+    "DomesticDNSType":  "DoH",
+    "DomesticDNSDomain":  "https://common.dot.dns.yandex.net/dns-query",
+    "DomesticDNSIP":  "77.88.8.8",
+    "Geoipurl":  "https://cdn.jsdelivr.net/gh/DigneZzZ/routing@main/v2ray/geoip.dat",
+    "Geositeurl":  "https://cdn.jsdelivr.net/gh/DigneZzZ/routing@main/v2ray/geosite.dat",
+    "LastUpdated":  "2026-11-18",
+    "DnsHosts":  {
+                     "cloudflare-dns.com":  "1.1.1.1"
+                 },
+    "RouteOrder":  "block-direct-proxy",
+    "DirectSites":  [
+                        "geosite:private",
+                        "geosite:ru-core",
+                        "geosite:apple-core",
+                        "geosite:google-play"
+                    ],
+    "DirectIp":  [
+                     "geoip:private"
+                 ],
+    "ProxySites":  [
+                       "geosite:google-deepmind",
+                       "geosite:ai",
+                       "geosite:youtube",
+                       "geosite:discord",
+                       "geosite:telegram",
+                       "geosite:whatsapp",
+                       "geosite:github",
+                       "geosite:banned-ru",
+                       "geosite:category-geoblock-ru",
+                       "domain:google.com",
+                       "domain:googleapis.com",
+                       "domain:gstatic.com"
+                   ],
+    "ProxyIp":  [
+                    "geoip:blocked-ru",
+                    "geoip:telegram",
+                    "66.22.192.0/18"
+                ],
+    "BlockSites":  [
+
+                   ],
+    "BlockIp":  [
+
+                ],
+    "DomainStrategy":  "IPIfNonMatch",
+    "FakeDNS":  "false"
+}

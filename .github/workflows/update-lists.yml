@@ -1,0 +1,32 @@
+name: Update Bypass Lists
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "17 */12 * * *"
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Build routing configs and IP lists
+        shell: pwsh
+        run: pwsh -NoProfile -File ./scripts/build-all.ps1
+
+      - name: Commit updated lists
+        run: |
+          if [ -n "$(git status --porcelain dist/)" ]; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add dist/
+            git commit -m "Update routing lists and deeplinks"
+            git push
+          else
+            echo "No changes in dist/."
+          fi

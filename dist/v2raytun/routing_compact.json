@@ -1,0 +1,150 @@
+{
+    "domainStrategy":  "IPIfNonMatch",
+    "domainMatcher":  "hybrid",
+    "id":  "A1B2C3D4-1111-4444-8888-0000000D07A2",
+    "name":  "Gemini + Dota2 (Smart RU)",
+    "balancers":  [
+
+                  ],
+    "rules":  [
+                  {
+                      "type":  "field",
+                      "id":  "10000000-0000-4000-8000-000000000001",
+                      "__name__":  "Direct Private \u0026 Dota2 IPs",
+                      "ip":  [
+                                 "geoip:private",
+                                 "155.133.224.0/19",
+                                 "162.254.192.0/21",
+                                 "146.66.152.0/21",
+                                 "185.25.180.0/22",
+                                 "103.10.124.0/23",
+                                 "103.28.54.0/23",
+                                 "45.121.184.0/23",
+                                 "205.196.6.0/24",
+                                 "117.185.19.0/24",
+                                 "140.206.227.0/24",
+                                 "152.233.52.0/24",
+                                 "180.163.126.0/24",
+                                 "212.102.63.0/24",
+                                 "61.152.104.0/24",
+                                 "89.222.108.0/24",
+                                 "89.222.117.0/24"
+                             ],
+                      "outboundTag":  "direct"
+                  },
+                  {
+                      "type":  "field",
+                      "id":  "10000000-0000-4000-8000-000000000002",
+                      "__name__":  "Direct Private \u0026 Steam Domains",
+                      "domainMatcher":  "hybrid",
+                      "domain":  [
+                                     "geosite:private",
+                                     "geosite:steam",
+                                     "domain:gosuslugi.ru",
+                                     "domain:nalog.ru",
+                                     "domain:mos.ru",
+                                     "domain:sberbank.ru",
+                                     "domain:tbank.ru",
+                                     "domain:vtb.ru",
+                                     "domain:alfabank.ru"
+                                 ],
+                      "outboundTag":  "direct"
+                  },
+                  {
+                      "type":  "field",
+                      "id":  "10000000-0000-4000-8000-000000000003",
+                      "__name__":  "Direct BitTorrent",
+                      "protocol":  [
+                                       "bittorrent"
+                                   ],
+                      "outboundTag":  "direct"
+                  },
+                  {
+                      "type":  "field",
+                      "id":  "10000000-0000-4000-8000-000000000004",
+                      "__name__":  "Proxy Gemini, AI \u0026 Geoblocked",
+                      "domainMatcher":  "hybrid",
+                      "domain":  [
+                                     "geosite:google-deepmind",
+                                     "geosite:google",
+                                     "geosite:youtube",
+                                     "geosite:category-ai-!cn",
+                                     "geosite:discord",
+                                     "geosite:telegram",
+                                     "geosite:whatsapp",
+                                     "geosite:instagram",
+                                     "geosite:facebook",
+                                     "geosite:twitter",
+                                     "geosite:tiktok",
+                                     "geosite:spotify",
+                                     "geosite:netflix",
+                                     "geosite:patreon",
+                                     "geosite:reddit",
+                                     "geosite:linkedin",
+                                     "geosite:github",
+                                     "geosite:canva",
+                                     "geosite:notion",
+                                     "geosite:jetbrains",
+                                     "geosite:figma",
+                                     "geosite:nvidia",
+                                     "geosite:intel",
+                                     "geosite:adobe",
+                                     "geosite:autodesk",
+                                     "domain:rutracker.org",
+                                     "domain:rutor.info",
+                                     "domain:nnmclub.to",
+                                     "domain:flibusta.is",
+                                     "domain:ficbook.net",
+                                     "domain:jut.su",
+                                     "domain:rezka.ag",
+                                     "domain:hdrezka.ag",
+                                     "domain:lostfilm.tv",
+                                     "domain:anilibria.tv",
+                                     "domain:shikimori.one",
+                                     "domain:kemono.su",
+                                     "domain:meduza.io",
+                                     "domain:theins.ru",
+                                     "domain:tvrain.ru",
+                                     "domain:novayagazeta.ru",
+                                     "domain:moscowtimes.ru",
+                                     "domain:seasonvar.ru",
+                                     "domain:4pda.to",
+                                     "domain:prostovpn.org",
+                                     "domain:ntc.party",
+                                     "domain:x.ai",
+                                     "domain:grok.com"
+                                 ],
+                      "outboundTag":  "proxy"
+                  },
+                  {
+                      "type":  "field",
+                      "id":  "10000000-0000-4000-8000-000000000005",
+                      "__name__":  "Proxy Discord Voice, TG \u0026 Blocked IPs",
+                      "ip":  [
+                                 "66.22.192.0/18",
+                                 "91.108.4.0/22",
+                                 "91.108.8.0/22",
+                                 "91.108.12.0/22",
+                                 "91.108.16.0/22",
+                                 "91.108.20.0/22",
+                                 "91.108.56.0/22",
+                                 "149.154.160.0/20",
+                                 "185.76.151.0/24",
+                                 "23.207.103.177/32",
+                                 "18.195.4.0/24",
+                                 "151.101.236.159/32",
+                                 "31.131.253.250/32",
+                                 "172.232.25.131/32",
+                                 "91.105.192.0/23"
+                             ],
+                      "outboundTag":  "proxy"
+                  },
+                  {
+                      "type":  "field",
+                      "id":  "10000000-0000-4000-8000-000000000006",
+                      "__name__":  "Direct All Other Traffic",
+                      "port":  "0-65535",
+                      "outboundTag":  "direct"
+                  }
+              ]
+}
