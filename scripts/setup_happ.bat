@@ -10,6 +10,7 @@ exit /b
 [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
 $Utf8NoBom = New-Object System.Text.UTF8Encoding($false)
 $dir = Split-Path -Parent $env:SELF
+if (-not $dir) { $dir = (Get-Location).Path }
 $parentDir = Split-Path -Parent $dir
 $customDir = if ($parentDir) { Join-Path $parentDir "custom" } else { "" }
 
@@ -23,28 +24,17 @@ function Read-CustomLines([string]$Path) {
     return $items.ToArray()
 }
 
-$ExtraProxyDomains = @(
-    "geosite:category-ai-!cn",
-    "geosite:nvidia",
-    "geosite:figma"
-)
-if ($customDir) {
-    foreach ($d in (Read-CustomLines (Join-Path $customDir "extra-proxy-domains.txt"))) {
-        $rule = if ($d -match '^(geosite|domain|full|regexp|keyword|ext):') { $d } else { "domain:$d" }
-        $ExtraProxyDomains += $rule
-    }
-}
-
-$ExtraProxyIps = @()
-if ($customDir) {
-    foreach ($ip in (Read-CustomLines (Join-Path $customDir "extra-proxy-ips.txt"))) {
-        if ($ip -match '^\d+\.\d+\.\d+\.\d+/\d+$' -or $ip -match '^geoip:') {
-            $ExtraProxyIps += $ip
+function Unique-List([object[]]$Items) {
+    $set = New-Object 'System.Collections.Generic.HashSet[string]'
+    $list = New-Object 'System.Collections.Generic.List[string]'
+    foreach ($item in $Items) {
+        if ($null -ne $item) {
+            $s = [string]$item
+            if ($s -and $set.Add($s)) { [void]$list.Add($s) }
         }
     }
+    return ,($list.ToArray())
 }
-
-Write-Host "[1/3] Собираем актуальные подсети релеев Dota 2 из API Steam..." -ForegroundColor Cyan
 
 function Test-InValveSupernet([string]$ip) {
     $o = $ip.Split('.') | ForEach-Object { [int]$_ }
@@ -59,6 +49,45 @@ function Test-InValveSupernet([string]$ip) {
     return $false
 }
 
+function Resolve-HappExe {
+    try {
+        $cmd = (Get-ItemProperty -LiteralPath "Registry::HKEY_CLASSES_ROOT\happ\shell\open\command" -ErrorAction SilentlyContinue).'(default)'
+        if ($cmd) {
+            if ($cmd -match '^\s*"([^"]+)"') {
+                if (Test-Path $matches[1]) { return $matches[1] }
+            } elseif ($cmd -match '^\s*([^\s]+)') {
+                if (Test-Path $matches[1]) { return $matches[1] }
+            }
+        }
+    } catch {}
+    foreach ($cand in @(
+        (Join-Path $env:ProgramFiles "FlyFrogLLC\Happ\Happ.exe"),
+        (Join-Path ${env:ProgramFiles(x86)} "FlyFrogLLC\Happ\Happ.exe"),
+        (Join-Path $env:LOCALAPPDATA "Programs\Happ\Happ.exe"),
+        (Join-Path $env:LOCALAPPDATA "Happ\Happ.exe")
+    )) {
+        if ($cand -and (Test-Path $cand)) { return $cand }
+    }
+    return $null
+}
+
+$customDomains = @(
+    if ($customDir) {
+        foreach ($d in (Read-CustomLines (Join-Path $customDir "extra-proxy-domains.txt"))) {
+            if ($d -match '^(geosite|domain|full|regexp|keyword|ext):') { $d } else { "domain:$d" }
+        }
+    }
+)
+$customIps = @(
+    if ($customDir) {
+        foreach ($ip in (Read-CustomLines (Join-Path $customDir "extra-proxy-ips.txt"))) {
+            if ($ip -match '^\d+\.\d+\.\d+\.\d+/\d+$' -or $ip -match '^geoip:') { $ip }
+        }
+    }
+)
+
+Write-Host "[1/3] Собираем актуальные подсети релеев Dota 2 из API Steam..." -ForegroundColor Cyan
+
 $dotaCidrs = New-Object System.Collections.Generic.List[string]
 foreach ($baseCidr in @(
     "155.133.224.0/19", "162.254.192.0/21", "146.66.152.0/21",
@@ -69,7 +98,7 @@ foreach ($baseCidr in @(
 try {
     $sdr = Invoke-RestMethod "https://api.steampowered.com/ISteamApps/GetSDRConfig/v1/?appid=570" -TimeoutSec 12
     $extra = $sdr.pops.PSObject.Properties.Value |
-        Where-Object { $_.relays } | ForEach-Object { $_.relays.ipv4 } |
+        Where-Object { $_.relays -and ($_.desc -notmatch '\(China\)') } | ForEach-Object { $_.relays.ipv4 } |
         Where-Object { $_ -and $_ -match '^\d+\.\d+\.\d+\.\d+$' -and -not (Test-InValveSupernet $_) } |
         ForEach-Object { $_ -replace '\.\d+$', '.0/24' } | Sort-Object -Unique
     foreach ($c in $extra) { if (-not $dotaCidrs.Contains($c)) { [void]$dotaCidrs.Add($c) } }
@@ -78,85 +107,152 @@ try {
     Write-Host "  -> API Steam недоступен, используем встроенный пул подсетей Valve ($($dotaCidrs.Count))." -ForegroundColor Yellow
 }
 
-Write-Host "[2/3] Собираем профили для ПК/Android и для iPhone..." -ForegroundColor Cyan
-$todayUtc = (Get-Date).ToUniversalTime().ToString("yyyy-MM-dd")
+Write-Host "[2/3] Собираем быстрый профиль Happ (базы JSDelivr ~1.4 МБ) и iPhone Lite..." -ForegroundColor Cyan
+$unixTs = [DateTimeOffset]::UtcNow.ToUnixTimeSeconds().ToString()
+$geoIpUrl   = "https://cdn.jsdelivr.net/gh/DigneZzZ/routing@main/v2ray/geoip.dat"
+$geoSiteUrl = "https://cdn.jsdelivr.net/gh/DigneZzZ/routing@main/v2ray/geosite.dat"
+
+$mandatorySites = @(
+    "geosite:google-deepmind", "geosite:ai", "geosite:youtube",
+    "geosite:discord", "geosite:telegram", "geosite:whatsapp", "geosite:github",
+    "geosite:banned-ru",
+    "domain:google.com", "domain:googleapis.com", "domain:gstatic.com",
+    "domain:instagram.com", "domain:facebook.com", "domain:x.com", "domain:twitter.com",
+    "domain:tiktok.com", "domain:spotify.com", "domain:netflix.com", "domain:patreon.com",
+    "domain:rutracker.org", "domain:figma.com", "domain:nvidia.com", "domain:canva.com", "domain:notion.so"
+)
+$optionalExtras = @(
+    "domain:jetbrains.com", "domain:reddit.com", "domain:linkedin.com", "domain:grok.com", "domain:x.ai"
+)
+
+$pcSites = Unique-List ($mandatorySites + $customDomains)
 
 $pcProfile = [ordered]@{
-    Name              = "Gemini + Dota2 (PC & Android)"
-    GlobalProxy       = "false"
-    UseChunkFiles     = "true"
-    RemoteDNSType     = "DoH"
-    RemoteDNSDomain   = "https://cloudflare-dns.com/dns-query"
-    RemoteDNSIP       = "1.1.1.1"
-    DomesticDNSType   = "DoH"
-    DomesticDNSDomain = "https://common.dot.dns.yandex.net/dns-query"
-    DomesticDNSIP     = "77.88.8.8"
-    Geoipurl          = "https://raw.githubusercontent.com/runetfreedom/russia-v2ray-rules-dat/release/geoip.dat"
-    Geositeurl        = "https://raw.githubusercontent.com/runetfreedom/russia-v2ray-rules-dat/release/geosite.dat"
-    LastUpdated       = $todayUtc
-    DnsHosts          = [ordered]@{ "cloudflare-dns.com" = "1.1.1.1"; "dns.google" = "8.8.8.8" }
-    RouteOrder        = "block-direct-proxy"
-    DirectSites       = @("geosite:private", "geosite:steam", "geosite:ru-available-only-inside")
-    DirectIp          = @("geoip:private") + $dotaCidrs.ToArray()
-    ProxySites        = @(
-        "geosite:google-deepmind", "geosite:google", "geosite:youtube",
-        "geosite:discord", "geosite:telegram", "geosite:ru-blocked"
-    ) + $ExtraProxyDomains | Select-Object -Unique
-    ProxyIp           = @(
-        "geoip:ru-blocked", "geoip:ru-blocked-community", "geoip:re-filter",
-        "geoip:google", "geoip:telegram", "66.22.192.0/18"
-    ) + $ExtraProxyIps | Select-Object -Unique
-    BlockSites        = @()
-    BlockIp           = @()
-    DomainStrategy    = "IPIfNonMatch"
-    FakeDNS           = "false"
-}
-
-$iosCustomDomains = @($ExtraProxyDomains | Where-Object { $_ -notmatch '^geosite:' })
-$iosCustomIps     = @($ExtraProxyIps     | Where-Object { $_ -notmatch '^geoip:' })
-
-$iosProfile = [ordered]@{
-    Name              = "Gemini + Smart RU (iPhone)"
+    Name              = "Gemini Dota2 Smart RU"
     GlobalProxy       = "false"
     UseChunkFiles     = "false"
-    RemoteDNSType     = "DoH"
-    RemoteDNSDomain   = "https://cloudflare-dns.com/dns-query"
-    RemoteDNSIP       = "1.1.1.1"
-    DomesticDNSType   = "DoH"
-    DomesticDNSDomain = "https://common.dot.dns.yandex.net/dns-query"
-    DomesticDNSIP     = "77.88.8.8"
-    Geoipurl          = "https://cdn.jsdelivr.net/gh/DigneZzZ/routing@main/v2ray/geoip.dat"
-    Geositeurl        = "https://cdn.jsdelivr.net/gh/DigneZzZ/routing@main/v2ray/geosite.dat"
-    LastUpdated       = $todayUtc
+    RemoteDnsType     = "DoH"
+    RemoteDnsDomain   = "https://cloudflare-dns.com/dns-query"
+    RemoteDnsIp       = "1.1.1.1"
+    DomesticDnsType   = "DoH"
+    DomesticDnsDomain = "https://common.dot.dns.yandex.net/dns-query"
+    DomesticDnsIp     = "77.88.8.8"
+    GeoIpUrl          = $geoIpUrl
+    GeoSiteUrl        = $geoSiteUrl
+    LastUpdated       = $unixTs
     DnsHosts          = [ordered]@{ "cloudflare-dns.com" = "1.1.1.1" }
     RouteOrder        = "block-direct-proxy"
-    DirectSites       = @("geosite:private", "geosite:ru-core", "geosite:apple-core", "geosite:google-play")
-    DirectIp          = @("geoip:private")
-    ProxySites        = @(
-        "geosite:google-deepmind", "geosite:ai", "geosite:youtube",
-        "geosite:discord", "geosite:telegram", "geosite:whatsapp", "geosite:github",
-        "geosite:banned-ru", "geosite:category-geoblock-ru",
-        "domain:google.com", "domain:googleapis.com", "domain:gstatic.com"
-    ) + $iosCustomDomains | Select-Object -Unique
-    ProxyIp           = @("geoip:blocked-ru", "geoip:telegram", "66.22.192.0/18") + $iosCustomIps | Select-Object -Unique
+    DirectSites       = Unique-List @("geosite:private", "geosite:steam")
+    DirectIp          = Unique-List (@("geoip:private") + $dotaCidrs.ToArray())
+    ProxySites        = $pcSites
+    ProxyIp           = Unique-List (@("geoip:blocked-ru", "geoip:telegram", "66.22.192.0/18") + $customIps)
     BlockSites        = @()
     BlockIp           = @()
     DomainStrategy    = "IPIfNonMatch"
-    FakeDNS           = "false"
+    FakeDns           = "false"
 }
 
-$pcLink  = "happ://routing/onadd/" + [Convert]::ToBase64String($Utf8NoBom.GetBytes(($pcProfile  | ConvertTo-Json -Depth 6 -Compress)))
+$pcLink = "happ://routing/onadd/" + [Convert]::ToBase64String($Utf8NoBom.GetBytes(($pcProfile | ConvertTo-Json -Depth 6 -Compress)))
+if ($pcLink.Length -ge 2083) {
+    $trimmed = New-Object 'System.Collections.Generic.List[string]'
+    foreach ($s in $pcSites) { [void]$trimmed.Add($s) }
+    foreach ($opt in $optionalExtras) {
+        if ($pcLink.Length -lt 2083) { break }
+        [void]$trimmed.Remove($opt)
+        $pcProfile.ProxySites = $trimmed.ToArray()
+        $pcLink = "happ://routing/onadd/" + [Convert]::ToBase64String($Utf8NoBom.GetBytes(($pcProfile | ConvertTo-Json -Depth 6 -Compress)))
+    }
+}
+
+$iosCustomDomains = @($customDomains | Where-Object { $_ -notmatch '^geosite:' })
+$iosCustomIps     = @($customIps     | Where-Object { $_ -notmatch '^geoip:' })
+
+$iosProfile = [ordered]@{
+    Name              = "Gemini Smart RU iPhone"
+    GlobalProxy       = "false"
+    UseChunkFiles     = "false"
+    RemoteDnsType     = "DoH"
+    RemoteDnsDomain   = "https://cloudflare-dns.com/dns-query"
+    RemoteDnsIp       = "1.1.1.1"
+    DomesticDnsType   = "DoH"
+    DomesticDnsDomain = "https://common.dot.dns.yandex.net/dns-query"
+    DomesticDnsIp     = "77.88.8.8"
+    GeoIpUrl          = $geoIpUrl
+    GeoSiteUrl        = $geoSiteUrl
+    LastUpdated       = $unixTs
+    DnsHosts          = [ordered]@{ "cloudflare-dns.com" = "1.1.1.1" }
+    RouteOrder        = "block-direct-proxy"
+    DirectSites       = Unique-List @("geosite:private", "geosite:ru-core", "geosite:apple-core")
+    DirectIp          = @("geoip:private")
+    ProxySites        = Unique-List ($mandatorySites + $iosCustomDomains)
+    ProxyIp           = Unique-List (@("geoip:blocked-ru", "geoip:telegram", "66.22.192.0/18") + $iosCustomIps)
+    BlockSites        = @()
+    BlockIp           = @()
+    DomainStrategy    = "IPIfNonMatch"
+    FakeDns           = "false"
+}
+
 $iosLink = "happ://routing/onadd/" + [Convert]::ToBase64String($Utf8NoBom.GetBytes(($iosProfile | ConvertTo-Json -Depth 6 -Compress)))
 
-[IO.File]::WriteAllText((Join-Path $dir "happ_pc_android_link.txt"), $pcLink,  $Utf8NoBom)
+[IO.File]::WriteAllText((Join-Path $dir "happ_pc_android_link.txt"), $pcLink, $Utf8NoBom)
+[IO.File]::WriteAllText((Join-Path $dir "happ_pc_android.json"), (($pcProfile | ConvertTo-Json -Depth 6) -replace "`r`n", "`n"), $Utf8NoBom)
 [IO.File]::WriteAllText((Join-Path $dir "happ_iphone_lite_link.txt"), $iosLink, $Utf8NoBom)
 try { Set-Clipboard -Value $pcLink } catch { $pcLink | clip }
 
-Write-Host "[3/3] Применяем профиль в Happ на этом ПК..." -ForegroundColor Cyan
+Write-Host "[3/3] Передаём профиль напрямую в Happ.exe..." -ForegroundColor Cyan
+$happExe = Resolve-HappExe
 try {
-    Start-Process $pcLink
-    Write-Host "ГОТОВО! Переподключи VPN (Выкл/Вкл) в Happ." -ForegroundColor Green
+    if ($happExe) {
+        Start-Process -FilePath $happExe -ArgumentList $pcLink
+        Write-Host "  -> Запущен Happ: $happExe" -ForegroundColor DarkGray
+    } else {
+        Start-Process $pcLink
+    }
 } catch {
-    Write-Host "Ссылка уже в буфере обмена! Открой Happ -> '+' -> Вставить из буфера обмена." -ForegroundColor Yellow
+    Write-Host "  -> Не удалось запустить Happ автоматически: $($_.Exception.Message)" -ForegroundColor Yellow
 }
-Write-Host "Ссылки сохранены рядом: happ_pc_android_link.txt и happ_iphone_lite_link.txt" -ForegroundColor DarkGray
+
+Start-Sleep -Seconds 2
+
+$routingFile = Join-Path $env:LOCALAPPDATA "Happ\routing.json"
+$profileFound = $false
+$hasSub = $false
+if (Test-Path $routingFile) {
+    try {
+        $rj = ([IO.File]::ReadAllText($routingFile, $Utf8NoBom)) | ConvertFrom-Json
+        if ($rj.routingNames -contains "Gemini Dota2 Smart RU") { $profileFound = $true }
+        elseif ($rj.routings) {
+            foreach ($r in $rj.routings) {
+                if ($r.name -eq "Gemini Dota2 Smart RU" -or $r.Name -eq "Gemini Dota2 Smart RU") {
+                    $profileFound = $true
+                    break
+                }
+            }
+        }
+        if ($rj.subConfigs) {
+            foreach ($sc in $rj.subConfigs) {
+                if ($sc.subscriptionId -ne 0) { $hasSub = $true }
+            }
+        }
+    } catch {}
+}
+
+Write-Host ""
+if ($profileFound) {
+    Write-Host "ПРОФИЛЬ 'Gemini Dota2 Smart RU' ДОБАВЛЕН В HAPP!" -ForegroundColor Green
+} else {
+    Write-Host "ССЫЛКА УЖЕ СКОПИРОВАНА В БУФЕР ОБМЕНА!" -ForegroundColor Yellow
+}
+
+Write-Host ""
+Write-Host "ЧТО СДЕЛАТЬ В HAPP:" -ForegroundColor White
+Write-Host "  1) Если сервер добавлен вручную (Список серверов / vless ключ):" -ForegroundColor Gray
+Write-Host "     -> Профиль применяется автоматически; просто нажми Выкл / Вкл (Reconnect) и подожди 3-5 сек скачивания баз." -ForegroundColor Gray
+Write-Host "  2) Если ты сидишь через ПОДПИСКУ (SwagaVPN и т.п.):" -ForegroundColor Cyan
+Write-Host "     -> Десктопный Happ игнорирует выбор подписки через диплинк." -ForegroundColor Yellow
+Write-Host "     -> Открой Happ -> нажми '+' (или Маршрутизация -> '+') -> Вставить из буфера обмена -> выбери свою подписку!" -ForegroundColor Yellow
+if ($hasSub) {
+    Write-Host "  [!] Обнаружена активная подписка в Happ: обязательно вставь ссылку из буфера через '+'!" -ForegroundColor Magenta
+}
+Write-Host ""
+Write-Host "Рядом сохранены: happ_pc_android_link.txt, happ_pc_android.json, happ_iphone_lite_link.txt" -ForegroundColor DarkGray
