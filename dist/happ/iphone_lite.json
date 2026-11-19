@@ -10,7 +10,7 @@
   "DomesticDNSIP": "77.88.8.8",
   "Geoipurl": "https://cdn.jsdelivr.net/gh/DigneZzZ/routing@main/v2ray/geoip.dat",
   "Geositeurl": "https://cdn.jsdelivr.net/gh/DigneZzZ/routing@main/v2ray/geosite.dat",
-  "LastUpdated": "2026-11-18",
+  "LastUpdated": "2026-11-19",
   "DnsHosts": {
     "cloudflare-dns.com": "1.1.1.1"
   },
