@@ -1,65 +1,61 @@
 {
-    "Name":  "Gemini Smart RU iPhone",
-    "GlobalProxy":  "false",
-    "UseChunkFiles":  "false",
-    "RemoteDnsType":  "DoH",
-    "RemoteDnsDomain":  "https://cloudflare-dns.com/dns-query",
-    "RemoteDnsIp":  "1.1.1.1",
-    "DomesticDnsType":  "DoH",
-    "DomesticDnsDomain":  "https://common.dot.dns.yandex.net/dns-query",
-    "DomesticDnsIp":  "77.88.8.8",
-    "GeoIpUrl":  "https://cdn.jsdelivr.net/gh/DigneZzZ/routing@main/v2ray/geoip.dat",
-    "GeoSiteUrl":  "https://cdn.jsdelivr.net/gh/DigneZzZ/routing@main/v2ray/geosite.dat",
-    "LastUpdated":  "1795109021",
-    "DnsHosts":  {
-                     "cloudflare-dns.com":  "1.1.1.1"
-                 },
-    "RouteOrder":  "block-direct-proxy",
-    "DirectSites":  [
-                        "geosite:private",
-                        "geosite:ru-core",
-                        "geosite:apple-core"
-                    ],
-    "DirectIp":  [
-                     "geoip:private"
-                 ],
-    "ProxySites":  [
-                       "geosite:google-deepmind",
-                       "geosite:ai",
-                       "geosite:youtube",
-                       "geosite:discord",
-                       "geosite:telegram",
-                       "geosite:whatsapp",
-                       "geosite:github",
-                       "geosite:banned-ru",
-                       "domain:google.com",
-                       "domain:googleapis.com",
-                       "domain:gstatic.com",
-                       "domain:instagram.com",
-                       "domain:facebook.com",
-                       "domain:x.com",
-                       "domain:twitter.com",
-                       "domain:tiktok.com",
-                       "domain:spotify.com",
-                       "domain:netflix.com",
-                       "domain:patreon.com",
-                       "domain:rutracker.org",
-                       "domain:figma.com",
-                       "domain:nvidia.com",
-                       "domain:canva.com",
-                       "domain:notion.so"
-                   ],
-    "ProxyIp":  [
-                    "geoip:blocked-ru",
-                    "geoip:telegram",
-                    "66.22.192.0/18"
-                ],
-    "BlockSites":  [
-
-                   ],
-    "BlockIp":  [
-
-                ],
-    "DomainStrategy":  "IPIfNonMatch",
-    "FakeDns":  "false"
+  "Name": "Gemini Smart RU iPhone",
+  "GlobalProxy": "false",
+  "UseChunkFiles": "false",
+  "RemoteDnsType": "DoH",
+  "RemoteDnsDomain": "https://cloudflare-dns.com/dns-query",
+  "RemoteDnsIp": "1.1.1.1",
+  "DomesticDnsType": "DoH",
+  "DomesticDnsDomain": "https://common.dot.dns.yandex.net/dns-query",
+  "DomesticDnsIp": "77.88.8.8",
+  "GeoIpUrl": "https://cdn.jsdelivr.net/gh/DigneZzZ/routing@main/v2ray/geoip.dat",
+  "GeoSiteUrl": "https://cdn.jsdelivr.net/gh/DigneZzZ/routing@main/v2ray/geosite.dat",
+  "LastUpdated": "1795120331",
+  "DnsHosts": {
+    "cloudflare-dns.com": "1.1.1.1"
+  },
+  "RouteOrder": "block-direct-proxy",
+  "DirectSites": [
+    "geosite:private",
+    "geosite:ru-core",
+    "geosite:apple-core"
+  ],
+  "DirectIp": [
+    "geoip:private"
+  ],
+  "ProxySites": [
+    "geosite:google-deepmind",
+    "geosite:ai",
+    "geosite:youtube",
+    "geosite:discord",
+    "geosite:telegram",
+    "geosite:whatsapp",
+    "geosite:github",
+    "geosite:banned-ru",
+    "domain:google.com",
+    "domain:googleapis.com",
+    "domain:gstatic.com",
+    "domain:instagram.com",
+    "domain:facebook.com",
+    "domain:x.com",
+    "domain:twitter.com",
+    "domain:tiktok.com",
+    "domain:spotify.com",
+    "domain:netflix.com",
+    "domain:patreon.com",
+    "domain:rutracker.org",
+    "domain:figma.com",
+    "domain:nvidia.com",
+    "domain:canva.com",
+    "domain:notion.so"
+  ],
+  "ProxyIp": [
+    "geoip:blocked-ru",
+    "geoip:telegram",
+    "66.22.192.0/18"
+  ],
+  "BlockSites": [],
+  "BlockIp": [],
+  "DomainStrategy": "IPIfNonMatch",
+  "FakeDns": "false"
 }
