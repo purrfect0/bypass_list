@@ -10,7 +10,7 @@
   "DomesticDnsIp": "77.88.8.8",
   "GeoIpUrl": "https://raw.githubusercontent.com/runetfreedom/russia-v2ray-rules-dat/release/geoip.dat",
   "GeoSiteUrl": "https://raw.githubusercontent.com/runetfreedom/russia-v2ray-rules-dat/release/geosite.dat",
-  "LastUpdated": "1795477835",
+  "LastUpdated": "1795513845",
   "DnsHosts": {
     "cloudflare-dns.com": "1.1.1.1"
   },
